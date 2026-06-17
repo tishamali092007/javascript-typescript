@@ -1,0 +1,206 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  overflow: hidden;
+  background: #111827;
+}
+
+.slides-container {
+  display: flex;
+  width: 600vw;
+  height: 100vh;
+  transition: transform 0.6s ease-in-out;
+}
+
+.slide {
+  width: 100vw;
+  height: 100vh;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 25px;
+  padding: 30px;
+  text-align: center;
+}
+
+.countdown-slide {
+  background: linear-gradient(135deg, #264653, #2a9d8f);
+  color: white;
+}
+
+.quote-slide {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+
+  background:
+    radial-gradient(circle at center,
+      #0d2d34 0%,
+      #14414c 12%,
+      #1c5c6b 35%,
+      #247d91 65%,
+      #298296 100%);
+}
+
+.quote-box {
+  width: 540px;
+  height: 540px;
+
+  background: radial-gradient(
+    circle,
+    rgba(8, 35, 43, 0.95) 0%,
+    rgba(11, 54, 66, 0.75) 35%,
+    rgba(20, 85, 100, 0.35) 65%,
+    rgba(20, 85, 100, 0) 100%
+  );
+
+  border: none;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  padding: 45px;
+}
+
+.quote-box p {
+  max-width: 420px;
+  font-size: 42px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-weight: 400;
+  line-height: 1.5;
+  color: #ffffff;
+}
+
+.timer {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  width: 80%;
+  max-width: 800px;
+}
+
+.timer div {
+  background: white;
+  color: #264653;
+  padding: 25px;
+  border-radius: 10px;
+}
+
+.timer span {
+  font-size: 45px;
+  font-weight: bold;
+}
+
+.timer p {
+  margin-top: 8px;
+  font-weight: bold;
+}
+
+button {
+  border: none;
+  border-radius: 8px;
+  padding: 12px 20px;
+  background: #111827;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+button:hover {
+  background: #374151;
+}
+
+#countdownStatus {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.controls {
+  position: fixed;
+  bottom: 25px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: 20px;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.9);
+  padding: 12px 18px;
+  border-radius: 10px;
+}
+
+#slideCounter {
+  font-weight: bold;
+  color: #111827;
+}
+
+.modal {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  justify-content: center;
+  align-items: center;
+  z-index: 10;
+}
+
+.modal.show {
+  display: flex;
+}
+
+.modal-box {
+  position: relative;
+  width: 90%;
+  max-width: 420px;
+  background: white;
+  padding: 35px;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.modal-box h2 {
+  margin-bottom: 15px;
+}
+
+#closeModal {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  padding: 6px 12px;
+}
+
+@media (max-width: 700px) {
+  .slide h1 {
+    font-size: 34px;
+  }
+
+  .quote-box {
+    width: 90%;
+    height: 520px;
+    padding: 25px;
+  }
+
+  .quote-box p {
+    font-size: 24px;
+  }
+
+  .timer {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .controls {
+    width: 90%;
+    justify-content: space-between;
+    gap: 8px;
+  }
+}

@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Countdown & Quotes Application</title>
+  <link rel="stylesheet" href="./style.css">
+</head>
+<body>
+
+  <div class="slides-container" id="slidesContainer">
+    <section class="slide countdown-slide">
+      <h1>Countdown to New Year 2027</h1>
+
+      <div class="timer">
+        <div>
+          <span id="days">00</span>
+          <p>Days</p>
+        </div>
+        <div>
+          <span id="hours">00</span>
+          <p>Hours</p>
+        </div>
+        <div>
+          <span id="minutes">00</span>
+          <p>Minutes</p>
+        </div>
+        <div>
+          <span id="seconds">00</span>
+          <p>Seconds</p>
+        </div>
+      </div>
+
+      <p id="countdownStatus">Timer is running.</p>
+      <button id="toggleCountdown">Pause Countdown</button>
+    </section>
+
+    <section class="slide quote-slide">
+      <div class="quote-box">
+        <p>" Success is not final, failure is not fatal: it is the courage to continue that counts."</p>
+      </div>
+    </section>
+
+    <section class="slide quote-slide">
+      <div class="quote-box">
+        <p>" Believe you can and you are halfway there."</p>
+      </div>
+    </section>
+
+    <section class="slide quote-slide">
+      <div class="quote-box">
+        <p>" Dream big and dare to fail."</p>
+      </div>
+    </section>
+
+    <section class="slide quote-slide">
+      <div class="quote-box">
+        <p>" Do something today that your future self will thank you for."</p>
+      </div>
+    </section>
+
+    <section class="slide quote-slide">
+      <div class="quote-box">
+        <p>" The secret of getting ahead is getting started."</p>
+      </div>
+    </section>
+  </div>
+
+  <div class="controls">
+    <button id="prevSlide">Previous</button>
+    <span id="slideCounter">Slide 1 of 6</span>
+    <button id="nextSlide">Next</button>
+  </div>
+
+  <div class="modal" id="welcomeModal">
+    <div class="modal-box">
+      <button id="closeModal">&times;</button>
+      <h2>Welcome to Countdown & Quotes App</h2>
+      <p>Stay motivated and enjoy each slide!</p>
+    </div>
+  </div>
+
+  <script src="./java.js"></script>
+</body>
+</html>
