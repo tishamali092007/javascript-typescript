@@ -139,13 +139,13 @@ https://video-auw1qg371-jesskp0886-specs-projects.vercel.app
 
 Add Your Video Link Here
 
-https://drive.google.com/file/d/16peN8P3bf6Wojzg-yLDYYBSZ-m5mq_-9/view?usp=sharing
+https://drive.google.com/file/d/1WD1YHtFPB4nbDZGYr96d30WgxGS1w7wL/view?usp=sharing
 
 ---
 
 ## 🔹 Screenshots
 
-![Project-3/laptop-size-output.png]()
+![Project-3/laptop-size-output.png](https://github.com/tishamali092007/javascript-typescript/blob/6ad074c7590dde1b07731d8b96dcd60638c6e3d5/project-3/output/count-down-screenshot.png)
 
 🔹 Project Structure
 
