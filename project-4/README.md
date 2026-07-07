@@ -155,38 +155,8 @@ The application is optimized for:
 
 <img width="1527" height="826" alt="Screenshot 2026-07-07 195456" src="https://github.com/user-attachments/assets/b5f5ad51-e384-4913-a6ce-fd86dab9c1fe" />
 
-
-```md
-![Adventure Quiz Screenshot](output/adventure-quiz.png)
-```
-
-Or if using GitHub:
-
-```md
-![Adventure Quiz Screenshot](https://github.com/yourusername/yourrepository/blob/main/output/adventure-quiz.png)
-```
-
----
-
-## 🔹 Project Structure
-
-```text
-Adventure-Quiz
-│
-├── index.html
-├── style.css
-├── Quiz.js
-├── README.md
-└── output/
-    └── adventure-quiz.png
-```
-
----
-
 # ⭐ Thank You
 
 Thank you for visiting this project.
 
 If you found this project useful, consider giving it a ⭐ on GitHub.
-
-You can simply replace the **video link**, **Google Drive link**, and **screenshot** with your own before uploading the project to GitHub.
