@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather App</title>
+
+    <!-- Google Font -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap"
+        rel="stylesheet">
+
+    <!-- Remix Icons -->
+    <link href="https://cdn.jsdelivr.net/npm/remixicon@4.6.0/fonts/remixicon.css" rel="stylesheet">
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div class="container">
+
+        <!-- Search -->
+        <div class="search-box">
+
+            <input type="text" id="searchInput" placeholder="Search city...">
+
+            <button id="searchBtn">
+                <i class="ri-search-line"></i>
+            </button>
+
+            <button id="locationBtn">
+                <i class="ri-map-pin-line"></i>
+            </button>
+
+        </div>
+
+        <!-- Weather Card -->
+
+        <div class="weather-card">
+
+            <h2 id="city">Surat</h2>
+
+            <p id="date">Monday, 15 July</p>
+
+            <img id="icon"
+                src="https://openweathermap.org/img/wn/01d@4x.png"
+                alt="Weather Icon">
+
+            <h1 id="temp">30°C</h1>
+
+            <h3 id="condition">Clear Sky</h3>
+
+        </div>
+
+        <!-- Details -->
+
+        <div class="details">
+
+            <div class="box">
+                <i class="ri-water-percent-line"></i>
+                <p>Humidity</p>
+                <span id="humidity">70%</span>
+            </div>
+
+            <div class="box">
+                <i class="ri-windy-line"></i>
+                <p>Wind</p>
+                <span id="wind">15 km/h</span>
+            </div>
+
+            <div class="box">
+                <i class="ri-eye-line"></i>
+                <p>Visibility</p>
+                <span id="visibility">10 km</span>
+            </div>
+
+            <div class="box">
+                <i class="ri-sun-line"></i>
+                <p>Sunrise</p>
+                <span id="sunrise">06:00</span>
+            </div>
+
+        </div>
+
+        <!-- Forecast -->
+
+        <h2 class="title">5-Day Forecast</h2>
+
+        <div class="forecast" id="forecast">
+
+            <!-- JavaScript will add forecast cards here -->
+
+        </div>
+
+    </div>
+
+    <!-- Loading -->
+
+    <div class="loader" id="loader">
+        <div class="spinner"></div>
+    </div>
+
+    <script src="script.js"></script>
+
+</body>
+
+</html>
