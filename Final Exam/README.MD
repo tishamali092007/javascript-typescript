@@ -61,40 +61,19 @@ Final Exam/
 
 ---
 
-# 📸 Project Output
+## 📸 Output Screenshots
 
-### 1. All Tasks
+### All Tasks
+![All Tasks](Output%20image/final%20exam%20-%20output%20-%20all%20task.png)
 
-```
-Output image/final exam - output - all task.png
-```
+### High Priority
+![High Task](Output%20image/final%20exam%20-%20output%20-%20Hightask.png)
 
----
+### Low Priority
+![Low Task](Output%20image/final%20exam%20-%20output%20-%20Low%20task.png)
 
-### 2. High Priority Tasks
-
-```
-Output image/final exam - output - Hightask.png
-```
-
----
-
-### 3. Low Priority Tasks
-
-```
-Output image/final exam - output - Low task.png
-```
-
----
-
-### 4. Medium Priority Tasks
-
-```
-Output image/final exam - output - Medium task.png
-```
-
----
-
+### Medium Priority
+![Medium Task](Output%20image/final%20exam%20-%20output%20-%20Medium%20task.png)
 # 🎥 Live Demo Video
 
 Google Drive Link
