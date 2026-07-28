@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>View Products - Sellzy</title>
+  <link rel="shortcut icon" href="images/favicon.png" type="image/x-icon">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/hgi-stroke-rounded.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/shop.css">
+</head>
+<body>
+
+  <!-- ===== Header ===== -->
+  <header class="shop-header">
+    <div class="shop-header-top">Free shipping on orders above ₹999 &bull; Need help? Call (480) 555-0103</div>
+    <div class="shop-header-inner">
+      <a href="index.html" class="shop-logo"><img src="images/logo.png" alt="Sellzy Logo"></a>
+      <nav class="shop-nav">
+        <a href="index.html">Home</a>
+        <a href="view-product.html" class="active">Shop / View Products</a>
+        <a href="add-product.html">Add Product</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+      <div class="shop-header-right">
+        <a href="cart.html" class="shop-cart-link" aria-label="Cart">
+          <i class="hgi hgi-stroke hgi-shopping-cart-02"></i>
+          <span class="shop-cart-badge" data-cart-count>0</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== Page ===== -->
+  <main class="shop-page">
+    <div class="shop-container">
+      <h1 class="shop-page-title">All Products</h1>
+      <p class="shop-breadcrumb"><a href="index.html">Home</a> / <span>Products</span></p>
+
+      <div class="shop-toolbar">
+        <div class="field search-field">
+          <label for="search-input">Search</label>
+          <input type="text" id="search-input" placeholder="Search products by name…">
+        </div>
+
+        <div class="field">
+          <label for="category-filter">Category</label>
+          <select id="category-filter">
+            <option value="all">All Categories</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label for="sort-select">Sort By</label>
+          <select id="sort-select">
+            <option value="default">Default</option>
+            <option value="name-asc">Name: A to Z</option>
+            <option value="name-desc">Name: Z to A</option>
+            <option value="price-asc">Price: Low to High</option>
+            <option value="price-desc">Price: High to Low</option>
+            <option value="stock-desc">Stock: High to Low</option>
+          </select>
+        </div>
+
+        <div class="field">
+          <label>&nbsp;</label>
+          <a href="add-product.html" class="shop-btn shop-btn-primary">
+            <i class="hgi hgi-stroke hgi-add-01"></i> Add Product
+          </a>
+        </div>
+      </div>
+
+      <p class="shop-result-count" id="result-count"></p>
+
+      <div class="shop-product-grid" id="product-grid"></div>
+
+      <div class="shop-empty-state" id="empty-state" style="display:none;">
+        <i class="hgi hgi-stroke hgi-search-01" style="font-size:32px;"></i>
+        <p style="margin-top:10px;">No products found. Try a different search or add a new product.</p>
+      </div>
+    </div>
+  </main>
+
+  <footer class="shop-footer">
+    <div class="shop-container">
+      &copy; 2026 Sellzy. All rights reserved. |
+      <a href="contact.html">Contact</a>
+    </div>
+  </footer>
+
+  <script src="js/app.js"></script>
+  <script>
+    const grid = document.getElementById("product-grid");
+    const emptyState = document.getElementById("empty-state");
+    const resultCount = document.getElementById("result-count");
+    const searchInput = document.getElementById("search-input");
+    const categoryFilter = document.getElementById("category-filter");
+    const sortSelect = document.getElementById("sort-select");
+
+    function populateCategories() {
+      const products = sellzyGetProducts();
+      const categories = [...new Set(products.map((p) => p.category).filter(Boolean))];
+      categories.forEach((cat) => {
+        const opt = document.createElement("option");
+        opt.value = cat;
+        opt.textContent = cat;
+        categoryFilter.appendChild(opt);
+      });
+    }
+
+    function renderProductCard(product) {
+      const outOfStock = Number(product.stock) <= 0;
+      const card = document.createElement("div");
+      card.className = "shop-product-card";
+      card.innerHTML =
+        '<a href="single-product.html?id=' + product.id + '" class="shop-product-card-image">' +
+          '<img src="' + product.image + '" alt="' + product.name + '" onerror="this.src=\'images/logo.png\'">' +
+        '</a>' +
+        '<div class="shop-product-card-body">' +
+          '<span class="shop-product-category">' + (product.category || "General") + '</span>' +
+          '<a href="single-product.html?id=' + product.id + '" class="shop-product-name">' + product.name + '</a>' +
+          '<span class="shop-product-price">' + sellzyFormatPrice(product.price) + '</span>' +
+          '<span class="shop-product-stock ' + (outOfStock ? "out" : "") + '">' +
+            (outOfStock ? "Out of stock" : product.stock + " in stock") +
+          '</span>' +
+          '<div class="shop-product-actions">' +
+            '<button class="shop-btn shop-btn-primary shop-btn-small" data-add-cart="' + product.id + '" ' + (outOfStock ? "disabled" : "") + '>' +
+              '<i class="hgi hgi-stroke hgi-shopping-cart-02"></i> Add to Cart' +
+            '</button>' +
+            '<a class="shop-btn shop-btn-outline shop-btn-small" href="add-product.html?id=' + product.id + '">Edit</a>' +
+            '<button class="shop-btn shop-btn-danger shop-btn-small" data-delete="' + product.id + '">Delete</button>' +
+          '</div>' +
+        '</div>';
+      return card;
+    }
+
+    function renderProducts() {
+      let products = sellzyGetProducts();
+
+      // ----- Search -----
+      const query = searchInput.value.trim().toLowerCase();
+      if (query) {
+        products = products.filter((p) => p.name.toLowerCase().includes(query));
+      }
+
+      // ----- Filter by category -----
+      const category = categoryFilter.value;
+      if (category !== "all") {
+        products = products.filter((p) => p.category === category);
+      }
+
+      // ----- Sort -----
+      const sortValue = sortSelect.value;
+      if (sortValue === "name-asc") {
+        products.sort((a, b) => a.name.localeCompare(b.name));
+      } else if (sortValue === "name-desc") {
+        products.sort((a, b) => b.name.localeCompare(a.name));
+      } else if (sortValue === "price-asc") {
+        products.sort((a, b) => a.price - b.price);
+      } else if (sortValue === "price-desc") {
+        products.sort((a, b) => b.price - a.price);
+      } else if (sortValue === "stock-desc") {
+        products.sort((a, b) => b.stock - a.stock);
+      }
+
+      grid.innerHTML = "";
+      if (products.length === 0) {
+        emptyState.style.display = "block";
+        resultCount.textContent = "0 products found";
+        return;
+      }
+      emptyState.style.display = "none";
+      resultCount.textContent = products.length + " product" + (products.length !== 1 ? "s" : "") + " found";
+
+      products.forEach((p) => grid.appendChild(renderProductCard(p)));
+    }
+
+    // Event delegation for Add to Cart / Delete buttons
+    grid.addEventListener("click", function (e) {
+      const addBtn = e.target.closest("[data-add-cart]");
+      if (addBtn) {
+        sellzyAddToCart(addBtn.getAttribute("data-add-cart"), 1);
+        addBtn.innerHTML = '<i class="hgi hgi-stroke hgi-tick-01"></i> Added!';
+        setTimeout(() => {
+          addBtn.innerHTML = '<i class="hgi hgi-stroke hgi-shopping-cart-02"></i> Add to Cart';
+        }, 1200);
+        return;
+      }
+
+      const delBtn = e.target.closest("[data-delete]");
+      if (delBtn) {
+        const id = delBtn.getAttribute("data-delete");
+        if (confirm("Are you sure you want to delete this product?")) {
+          sellzyDeleteProduct(id);
+          renderProducts();
+        }
+      }
+    });
+
+    searchInput.addEventListener("input", renderProducts);
+    categoryFilter.addEventListener("change", renderProducts);
+    sortSelect.addEventListener("change", renderProducts);
+
+    const initialSearch = new URLSearchParams(window.location.search).get("search");
+    if (initialSearch) searchInput.value = initialSearch;
+
+    populateCategories();
+    renderProducts();
+  </script>
+</body>
+</html>

@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Details - Sellzy</title>
+  <link rel="shortcut icon" href="images/favicon.png" type="image/x-icon">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/hgi-stroke-rounded.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/shop.css">
+</head>
+<body>
+
+  <!-- ===== Header ===== -->
+  <header class="shop-header">
+    <div class="shop-header-top">Free shipping on orders above ₹999 &bull; Need help? Call (480) 555-0103</div>
+    <div class="shop-header-inner">
+      <a href="index.html" class="shop-logo"><img src="images/logo.png" alt="Sellzy Logo"></a>
+      <nav class="shop-nav">
+        <a href="index.html">Home</a>
+        <a href="view-product.html" class="active">Shop / View Products</a>
+        <a href="add-product.html">Add Product</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+      <div class="shop-header-right">
+        <a href="cart.html" class="shop-cart-link" aria-label="Cart">
+          <i class="hgi hgi-stroke hgi-shopping-cart-02"></i>
+          <span class="shop-cart-badge" data-cart-count>0</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== Page ===== -->
+  <main class="shop-page">
+    <div class="shop-container">
+      <p class="shop-breadcrumb"><a href="index.html">Home</a> / <a href="view-product.html">Products</a> / <span id="breadcrumb-name">Product</span></p>
+
+      <div id="not-found" style="display:none;" class="shop-empty-state">
+        <p>Sorry, this product could not be found.</p>
+        <a href="view-product.html" class="shop-btn shop-btn-primary" style="margin-top:14px;">Back to Products</a>
+      </div>
+
+      <div class="shop-single-product" id="product-detail" style="display:none;">
+        <div class="shop-single-image">
+          <img id="pd-image" src="" alt="">
+        </div>
+        <div>
+          <span class="shop-product-category" id="pd-category"></span>
+          <h1 class="shop-single-title" id="pd-name"></h1>
+          <div class="shop-single-price" id="pd-price"></div>
+          <p class="shop-single-desc" id="pd-description"></p>
+
+          <div id="pd-stock-badge" class="shop-product-stock"></div>
+
+          <div class="shop-single-actions">
+            <div class="shop-qty-selector">
+              <button type="button" id="qty-minus">−</button>
+              <input type="text" id="qty-value" value="1" readonly>
+              <button type="button" id="qty-plus">+</button>
+            </div>
+            <button class="shop-btn shop-btn-primary" id="add-to-cart-btn">
+              <i class="hgi hgi-stroke hgi-shopping-cart-02"></i> Add to Cart
+            </button>
+            <a href="add-product.html" id="edit-link" class="shop-btn shop-btn-outline">Edit Product</a>
+          </div>
+
+          <div id="added-msg" class="shop-alert success" style="margin-top:18px;"></div>
+
+          <div class="shop-meta-row">
+            <span><strong>Category:</strong> <span id="meta-category"></span></span>
+            <span><strong>Availability:</strong> <span id="meta-stock"></span></span>
+            <span><strong>Product ID:</strong> <span id="meta-id"></span></span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="shop-footer">
+    <div class="shop-container">
+      &copy; 2026 Sellzy. All rights reserved. |
+      <a href="contact.html">Contact</a>
+    </div>
+  </footer>
+
+  <script src="js/app.js"></script>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const productId = params.get("id");
+    const product = productId ? sellzyGetProductById(productId) : null;
+
+    if (!product) {
+      document.getElementById("not-found").style.display = "block";
+    } else {
+      document.getElementById("product-detail").style.display = "grid";
+      document.title = product.name + " - Sellzy";
+      document.getElementById("breadcrumb-name").textContent = product.name;
+      document.getElementById("pd-image").src = product.image;
+      document.getElementById("pd-image").alt = product.name;
+      document.getElementById("pd-category").textContent = product.category || "General";
+      document.getElementById("pd-name").textContent = product.name;
+      document.getElementById("pd-price").textContent = sellzyFormatPrice(product.price);
+      document.getElementById("pd-description").textContent = product.description || "No description available for this product.";
+      document.getElementById("edit-link").href = "add-product.html?id=" + product.id;
+      document.getElementById("meta-category").textContent = product.category || "General";
+      document.getElementById("meta-id").textContent = product.id;
+
+      const outOfStock = Number(product.stock) <= 0;
+      const stockBadge = document.getElementById("pd-stock-badge");
+      stockBadge.textContent = outOfStock ? "Out of stock" : product.stock + " units in stock";
+      stockBadge.className = "shop-product-stock " + (outOfStock ? "out" : "");
+      document.getElementById("meta-stock").textContent = outOfStock ? "Out of stock" : "In stock (" + product.stock + ")";
+
+      const qtyValue = document.getElementById("qty-value");
+      const addBtn = document.getElementById("add-to-cart-btn");
+      if (outOfStock) addBtn.disabled = true;
+
+      document.getElementById("qty-minus").addEventListener("click", function () {
+        let val = parseInt(qtyValue.value, 10) || 1;
+        if (val > 1) qtyValue.value = val - 1;
+      });
+
+      document.getElementById("qty-plus").addEventListener("click", function () {
+        let val = parseInt(qtyValue.value, 10) || 1;
+        const max = Number(product.stock) || 999;
+        if (val < max) qtyValue.value = val + 1;
+      });
+
+      addBtn.addEventListener("click", function () {
+        const qty = parseInt(qtyValue.value, 10) || 1;
+        sellzyAddToCart(product.id, qty);
+        const msg = document.getElementById("added-msg");
+        msg.textContent = qty + " x " + product.name + " added to cart!";
+        msg.style.display = "block";
+        setTimeout(() => (msg.style.display = "none"), 2500);
+      });
+    }
+  </script>
+</body>
+</html>
