@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Cart - Sellzy</title>
+  <link rel="shortcut icon" href="images/favicon.png" type="image/x-icon">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/hgi-stroke-rounded.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/shop.css">
+</head>
+<body>
+
+  <!-- ===== Header ===== -->
+  <header class="shop-header">
+    <div class="shop-header-top">Free shipping on orders above ₹999 &bull; Need help? Call (480) 555-0103</div>
+    <div class="shop-header-inner">
+      <a href="index.html" class="shop-logo"><img src="images/logo.png" alt="Sellzy Logo"></a>
+      <nav class="shop-nav">
+        <a href="index.html">Home</a>
+        <a href="view-product.html">Shop / View Products</a>
+        <a href="add-product.html">Add Product</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+      <div class="shop-header-right">
+        <a href="cart.html" class="shop-cart-link active" aria-label="Cart">
+          <i class="hgi hgi-stroke hgi-shopping-cart-02"></i>
+          <span class="shop-cart-badge" data-cart-count>0</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== Page ===== -->
+  <main class="shop-page">
+    <div class="shop-container">
+      <h1 class="shop-page-title">My Cart</h1>
+      <p class="shop-breadcrumb"><a href="index.html">Home</a> / <span>Cart</span></p>
+
+      <div id="empty-cart" class="shop-empty-state" style="display:none;">
+        <i class="hgi hgi-stroke hgi-shopping-cart-02" style="font-size:32px;"></i>
+        <p style="margin-top:10px;">Your cart is empty.</p>
+        <a href="view-product.html" class="shop-btn shop-btn-primary" style="margin-top:14px;">Continue Shopping</a>
+      </div>
+
+      <div class="shop-cart-layout" id="cart-layout" style="display:none;">
+        <div class="shop-cart-table-wrap">
+          <table class="shop-cart-table">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Price</th>
+                <th>Quantity</th>
+                <th>Subtotal</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody id="cart-body"></tbody>
+          </table>
+        </div>
+
+        <div class="shop-summary">
+          <h3>Order Summary</h3>
+          <div class="shop-summary-row">
+            <span id="items-count-label">Items</span>
+            <span id="items-count">0</span>
+          </div>
+          <div class="shop-summary-row">
+            <span>Sub Total</span>
+            <span id="cart-subtotal">₹0</span>
+          </div>
+          <div class="shop-summary-row">
+            <span>Shipping</span>
+            <span id="cart-shipping">Free</span>
+          </div>
+          <div class="shop-summary-row total">
+            <span>Total</span>
+            <span id="cart-total">₹0</span>
+          </div>
+          <button class="shop-btn shop-btn-primary" id="checkout-btn" style="width:100%;margin-top:16px;">
+            Proceed to Checkout
+          </button>
+          <a href="view-product.html" class="shop-btn shop-btn-outline" style="width:100%;margin-top:10px;">
+            Continue Shopping
+          </a>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <footer class="shop-footer">
+    <div class="shop-container">
+      &copy; 2026 Sellzy. All rights reserved. |
+      <a href="contact.html">Contact</a>
+    </div>
+  </footer>
+
+  <script src="js/app.js"></script>
+  <script>
+    const cartBody = document.getElementById("cart-body");
+    const emptyCart = document.getElementById("empty-cart");
+    const cartLayout = document.getElementById("cart-layout");
+
+    function renderCart() {
+      const cart = sellzyGetCart();
+
+      if (cart.length === 0) {
+        emptyCart.style.display = "block";
+        cartLayout.style.display = "none";
+        return;
+      }
+      emptyCart.style.display = "none";
+      cartLayout.style.display = "grid";
+
+      cartBody.innerHTML = "";
+      cart.forEach((item) => {
+        const row = document.createElement("tr");
+        const subtotal = item.qty * item.price;
+        row.innerHTML =
+          '<td>' +
+            '<div class="shop-cart-product">' +
+              '<img src="' + item.image + '" alt="' + item.name + '" onerror="this.src=\'images/logo.png\'">' +
+              '<a href="single-product.html?id=' + item.id + '" class="shop-cart-product-name">' + item.name + '</a>' +
+            '</div>' +
+          '</td>' +
+          '<td>' + sellzyFormatPrice(item.price) + '</td>' +
+          '<td>' +
+            '<div class="shop-qty-selector">' +
+              '<button type="button" data-decrease="' + item.id + '">−</button>' +
+              '<input type="text" value="' + item.qty + '" readonly>' +
+              '<button type="button" data-increase="' + item.id + '">+</button>' +
+            '</div>' +
+          '</td>' +
+          '<td>' + sellzyFormatPrice(subtotal) + '</td>' +
+          '<td><button class="shop-remove-btn" data-remove="' + item.id + '"><i class="hgi hgi-stroke hgi-delete-02"></i> Remove</button></td>';
+        cartBody.appendChild(row);
+      });
+
+      const count = sellzyCartCount();
+      const total = sellzyCartTotal();
+      document.getElementById("items-count").textContent = count;
+      document.getElementById("items-count-label").textContent = count === 1 ? "Item" : "Items";
+      document.getElementById("cart-subtotal").textContent = sellzyFormatPrice(total);
+      document.getElementById("cart-total").textContent = sellzyFormatPrice(total);
+    }
+
+    cartBody.addEventListener("click", function (e) {
+      const incBtn = e.target.closest("[data-increase]");
+      if (incBtn) {
+        sellzyIncreaseQty(incBtn.getAttribute("data-increase"));
+        renderCart();
+        return;
+      }
+      const decBtn = e.target.closest("[data-decrease]");
+      if (decBtn) {
+        sellzyDecreaseQty(decBtn.getAttribute("data-decrease"));
+        renderCart();
+        return;
+      }
+      const remBtn = e.target.closest("[data-remove]");
+      if (remBtn) {
+        sellzyRemoveFromCart(remBtn.getAttribute("data-remove"));
+        renderCart();
+      }
+    });
+
+    document.getElementById("checkout-btn").addEventListener("click", function () {
+      if (sellzyGetCart().length === 0) return;
+      alert("Thank you! Your order has been placed successfully.");
+      sellzySaveCart([]);
+      renderCart();
+    });
+
+    renderCart();
+  </script>
+</body>
+</html>

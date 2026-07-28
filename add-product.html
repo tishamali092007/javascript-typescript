@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title id="page-title">Add Product - Sellzy</title>
+  <link rel="shortcut icon" href="images/favicon.png" type="image/x-icon">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Urbanist:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/hgi-stroke-rounded.css">
+  <link rel="stylesheet" href="css/style.css">
+  <link rel="stylesheet" href="css/shop.css">
+</head>
+<body>
+
+  <!-- ===== Header ===== -->
+  <header class="shop-header">
+    <div class="shop-header-top">Free shipping on orders above ₹999 &bull; Need help? Call (480) 555-0103</div>
+    <div class="shop-header-inner">
+      <a href="index.html" class="shop-logo"><img src="images/logo.png" alt="Sellzy Logo"></a>
+      <nav class="shop-nav">
+        <a href="index.html">Home</a>
+        <a href="view-product.html">Shop / View Products</a>
+        <a href="add-product.html" class="active">Add Product</a>
+        <a href="contact.html">Contact</a>
+      </nav>
+      <div class="shop-header-right">
+        <a href="cart.html" class="shop-cart-link" aria-label="Cart">
+          <i class="hgi hgi-stroke hgi-shopping-cart-02"></i>
+          <span class="shop-cart-badge" data-cart-count>0</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- ===== Page ===== -->
+  <main class="shop-page">
+    <div class="shop-container">
+      <h1 class="shop-page-title" id="form-heading">Add New Product</h1>
+      <p class="shop-breadcrumb"><a href="index.html">Home</a> / <a href="view-product.html">Products</a> / <span id="breadcrumb-current">Add Product</span></p>
+
+      <div id="form-alert" class="shop-alert"></div>
+
+      <form class="shop-form-card" id="product-form">
+        <input type="hidden" id="product-id">
+        <div class="shop-form-grid">
+          <div class="shop-form-group full">
+            <label for="p-name">Product Name *</label>
+            <input type="text" id="p-name" placeholder="e.g. Wireless Bluetooth Earpods" required>
+          </div>
+
+          <div class="shop-form-group">
+            <label for="p-category">Category *</label>
+            <select id="p-category" required>
+              <option value="">Select category</option>
+              <option value="Electronics">Electronics</option>
+              <option value="Fashion">Fashion</option>
+              <option value="Appliances">Appliances</option>
+              <option value="Grocery">Grocery</option>
+              <option value="Health">Health</option>
+              <option value="Beauty">Beauty</option>
+              <option value="Sports">Sports</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <div class="shop-form-group">
+            <label for="p-price">Price (₹) *</label>
+            <input type="number" id="p-price" min="1" step="1" placeholder="e.g. 999" required>
+          </div>
+
+          <div class="shop-form-group">
+            <label for="p-stock">Stock Quantity *</label>
+            <input type="number" id="p-stock" min="0" step="1" placeholder="e.g. 25" required>
+          </div>
+
+          <div class="shop-form-group">
+            <label for="p-image">Image URL</label>
+            <input type="text" id="p-image" placeholder="images/earpods.png or full https:// link">
+            <span class="hint">Paste an image link, or use one of the sample paths already inside the images/ folder.</span>
+          </div>
+
+          <div class="shop-form-group full">
+            <label>Image Preview</label>
+            <div class="shop-image-preview" id="image-preview">
+              <span style="color:#9aa5b1;font-size:13px;">No image yet</span>
+            </div>
+          </div>
+
+          <div class="shop-form-group full">
+            <label for="p-description">Description</label>
+            <textarea id="p-description" placeholder="Short description of the product"></textarea>
+          </div>
+        </div>
+
+        <div class="shop-form-actions">
+          <button type="submit" class="shop-btn shop-btn-primary" id="submit-btn">
+            <i class="hgi hgi-stroke hgi-add-01"></i> Add Product
+          </button>
+          <a href="view-product.html" class="shop-btn shop-btn-outline">Cancel</a>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <footer class="shop-footer">
+    <div class="shop-container">
+      &copy; 2026 Sellzy. All rights reserved. |
+      <a href="contact.html">Contact</a>
+    </div>
+  </footer>
+
+  <script src="js/app.js"></script>
+  <script>
+    const params = new URLSearchParams(window.location.search);
+    const editId = params.get("id");
+
+    const nameEl = document.getElementById("p-name");
+    const categoryEl = document.getElementById("p-category");
+    const priceEl = document.getElementById("p-price");
+    const stockEl = document.getElementById("p-stock");
+    const imageEl = document.getElementById("p-image");
+    const descEl = document.getElementById("p-description");
+    const preview = document.getElementById("image-preview");
+    const alertBox = document.getElementById("form-alert");
+
+    function renderPreview() {
+      const url = imageEl.value.trim();
+      if (url) {
+        preview.innerHTML = '<img src="' + url + '" alt="preview" onerror="this.style.display=\'none\'">';
+      } else {
+        preview.innerHTML = '<span style="color:#9aa5b1;font-size:13px;">No image yet</span>';
+      }
+    }
+    imageEl.addEventListener("input", renderPreview);
+
+    // ----- Edit mode setup -----
+    if (editId) {
+      const product = sellzyGetProductById(editId);
+      if (product) {
+        document.getElementById("page-title").textContent = "Edit Product - Sellzy";
+        document.getElementById("form-heading").textContent = "Edit Product";
+        document.getElementById("breadcrumb-current").textContent = "Edit Product";
+        document.getElementById("submit-btn").innerHTML = '<i class="hgi hgi-stroke hgi-tick-01"></i> Update Product';
+        document.getElementById("product-id").value = product.id;
+        nameEl.value = product.name;
+        categoryEl.value = product.category;
+        priceEl.value = product.price;
+        stockEl.value = product.stock;
+        imageEl.value = product.image || "";
+        descEl.value = product.description || "";
+        renderPreview();
+      }
+    }
+
+    function showAlert(message, type) {
+      alertBox.textContent = message;
+      alertBox.className = "shop-alert " + type;
+      alertBox.style.display = "block";
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    document.getElementById("product-form").addEventListener("submit", function (e) {
+      e.preventDefault();
+
+      const productData = {
+        name: nameEl.value.trim(),
+        category: categoryEl.value,
+        price: parseFloat(priceEl.value),
+        stock: parseInt(stockEl.value, 10),
+        image: imageEl.value.trim() || "images/earpods.png",
+        description: descEl.value.trim()
+      };
+
+      if (!productData.name || !productData.category || isNaN(productData.price) || isNaN(productData.stock)) {
+        showAlert("Please fill in all the required fields correctly.", "error");
+        return;
+      }
+
+      const idField = document.getElementById("product-id").value;
+
+      if (idField) {
+        sellzyUpdateProduct(idField, productData);
+        showAlert("Product updated successfully! Redirecting…", "success");
+      } else {
+        sellzyAddProduct(productData);
+        showAlert("Product added successfully! Redirecting…", "success");
+      }
+
+      setTimeout(function () {
+        window.location.href = "view-product.html";
+      }, 900);
+    });
+  </script>
+</body>
+</html>
