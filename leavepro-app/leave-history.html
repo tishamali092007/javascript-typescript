@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>LeavePro - My History</title>
+  <link href="https://jsdelivr.net" rel="stylesheet">
+  <link rel="stylesheet" href="https://jsdelivr.net">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <nav class="sidebar d-flex flex-column justify-content-between py-3">
+    <div>
+      <div class="px-4 py-2 text-white fw-bold fs-5"><i class="bi bi-layer-forward"></i> LeavePro</div>
+      <hr class="text-secondary mx-3">
+      <div class="nav flex-column">
+        <a class="nav-link" href="dashboard.html"><i class="bi bi-grid-1x2-fill me-2"></i> Dashboard</a>
+        <a class="nav-link" href="apply-leave.html"><i class="bi bi-pencil-square me-2"></i> Apply Leave</a>
+        <a class="nav-link active" href="leave-history.html"><i class="bi bi-clock-history me-2"></i> History</a>
+      </div>
+    </div>
+    <div class="px-3"><button class="btn btn-outline-danger w-100 btn-sm" onclick="logout()"><i class="bi bi-power"></i> Logout</button></div>
+  </nav>
+
+  <div class="main-wrapper">
+    <div class="card p-4 card-metric bg-white">
+      <h4 class="fw-bold mb-3"><i class="bi bi-folder2-open text-primary"></i> Personal Filing Ledger History</h4>
+      
+      <!-- 5.5 Filters Control Grid -->
+      <div class="row g-2 mb-4">
+        <div class="col-md-4">
+          <select id="filter-type" class="form-select form-select-sm" onchange="renderHistory()">
+            <option value="">All Classifications</option>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <select id="filter-status" class="form-select form-select-sm" onchange="renderHistory()">
+            <option value="">All Transaction Statuses</option>
+            <option value="Pending">Pending</option>
+            <option value="Approved">Approved</option>
+            <option value="Rejected">Rejected</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="table-responsive">
+        <table class="table align-middle small table-hover">
+          <thead class="table-light">
+            <tr><th>Leave Type</th><th>Start Date</th><th>End Date</th><th>Total Days</th><th>Filing Date</th><th>Workflow Status</th></tr>
+          </thead>
+          <tbody id="history-rows"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script src="database.js"></script>
+  <script>
+    const user = getSessionUser();
+    if(user) {
+      checkAccess("employee");
+      
+      const types = DB.get("leave_types");
+      const selector = document.getElementById("filter-type");
+      types.forEach(t => selector.innerHTML += `<option value="${t.id}">${t.name}</option>`);
+
+      window.renderHistory = function() {
+        const requests = DB.get("requests").filter(r => r.employee_id === user.id);
+        const typeFilter = document.getElementById("filter-type").value;
+        const statusFilter = document.getElementById("filter-status").value;
+        const tbody = document.getElementById("history-rows");
+        
+        tbody.innerHTML = "";
+        
+        const targetRecords = requests.filter(r => {
+          return (!typeFilter || r.leave_type_id === parseInt(typeFilter)) && 
+                 (!statusFilter || r.status === statusFilter);
+        });
+
+        if(targetRecords.length === 0) {
+          tbody.innerHTML = `<tr><td colspan="6" class="text-center text-muted py-3">No tracking history matches query specifications.</td></tr>`;
+          return;
+        }
+
+        targetRecords.reverse().forEach(r => {
+          const typeName = types.find(t => t.id === r.leave_type_id)?.name || "Unknown";
+          tbody.innerHTML += `
+            <tr>
+              <td><strong>${typeName}</strong></td>
+              <td>${r.start_date}</td>
+              <td>${r.end_date}</td>
+              <td>${r.total_days} Days</td>
+              <td>${r.created_at}</td>
+              <td><span class="status-badge status-${r.status.toLowerCase()}">${r.status}</span></td>
+            </tr>`;
+        });
+      };
+      renderHistory();
+    }
+  </script>
+</body>
+</html>

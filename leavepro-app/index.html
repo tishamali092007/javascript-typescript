@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LeavePro - Authentication</title>
+  
+  <link href="https://jsdelivr.net" rel="stylesheet">
+  <link rel="stylesheet" href="https://jsdelivr.net">
+  
+  <style>
+    :root {
+      --primary-color: #4f46e5;
+      --background-color: #f3f4f6;
+    }
+    body {
+      background-color: var(--background-color);
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
+    }
+    .card {
+      background: #ffffff;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      width: 100%;
+      max-width: 400px;
+      border: none;
+    }
+    .form-control {
+      width: 100%;
+      padding: 10px 12px;
+      margin-top: 5px;
+      margin-bottom: 15px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 14px;
+      box-sizing: border-box;
+    }
+    .form-label {
+      font-size: 14px;
+      font-weight: 500;
+      color: #1f2937;
+      display: block;
+    }
+    .btn-primary {
+      width: 100%;
+      padding: 12px;
+      background-color: var(--primary-color);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-primary:hover {
+      background-color: #4338ca;
+    }
+    .btn-outline-secondary {
+      width: 100%;
+      padding: 10px;
+      background: none;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      text-align: left;
+      font-size: 14px;
+      cursor: pointer;
+      margin-top: 8px;
+    }
+    .btn-outline-secondary:hover {
+      background-color: #f9fafb;
+    }
+    .alert {
+      padding: 12px;
+      background-color: #fee2e2;
+      color: #ef4444;
+      border: 1px solid #fca5a5;
+      border-radius: 6px;
+      margin-bottom: 15px;
+      font-size: 14px;
+    }
+    .d-none { display: none !important; }
+    .text-center { text-align: center; }
+    .text-muted { color: #6b7280; }
+    .fw-bold { font-weight: 700; }
+    .border-top { border-top: 1px solid #e5e7eb; margin-top: 20px; padding-top: 15px; }
+  </style>
+</head>
+<body>
+
+  <div class="card">
+    <h3 class="text-center fw-bold" style="margin-bottom: 5px;">LeavePro</h3>
+    <p class="text-muted text-center" style="font-size: 14px; margin-bottom: 25px;">Sign in to your workplace account</p>
+    
+    <div id="login-alert" class="alert d-none"></div>
+    
+    <form id="form-login">
+      <div class="mb-3">
+        <label class="form-label">Email Address</label>
+        <input type="email" id="login-email" class="form-control" required placeholder="name@company.com">
+      </div>
+      <div class="mb-3">
+        <label class="form-label">Password</label>
+        <input type="password" id="login-password" class="form-control" required placeholder="••••••••">
+      </div>
+      <button type="submit" class="btn-primary">Sign In</button>
+    </form>
+
+    <div class="border-top">
+      <h6 class="fw-bold" style="font-size: 14px; margin-bottom: 10px;"><i class="bi bi-shield-lock-fill"></i> Quick Demo Quick-Click</h6>
+      <button class="btn-outline-secondary" onclick="quickLogin('employee@demo.com','user123')">
+        <i class="bi bi-person"></i> Employee Role (user123)
+      </button>
+      <button class="btn-outline-secondary" onclick="quickLogin('manager@demo.com','manager123')">
+        <i class="bi bi-person-workspace"></i> Manager Role (manager123)
+      </button>
+    </div>
+  </div>
+
+  <script src="database.js"></script>
+  <script>
+    document.getElementById("form-login").addEventListener("submit", function(e){
+      e.preventDefault();
+      const email = document.getElementById("login-email").value.trim();
+      const pass = document.getElementById("login-password").value;
+      const alertBox = document.getElementById("login-alert");
+      
+      const users = DB.get("users");
+      const matched = users.find(u => u.email === email && u.password === pass);
+      
+      if(matched) {
+        localStorage.setItem("lp_session_user", JSON.stringify(matched));
+        window.location.href = matched.role === "manager" ? "manager-list.html" : "dashboard.html";
+      } else {
+        alertBox.textContent = "Invalid email or password configuration.";
+        alertBox.classList.remove("d-none");
+      }
+    });
+    function quickLogin(em, ps) {
+      document.getElementById("login-email").value = em;
+      document.getElementById("login-password").value = ps;
+      document.getElementById("form-login").dispatchEvent(new Event("submit"));
+    }
+  </script>
+</body>
+</html>

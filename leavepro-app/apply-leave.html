@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LeavePro - Apply Leave</title>
+  <link href="https://jsdelivr.net" rel="stylesheet">
+  <link rel="stylesheet" href="https://jsdelivr.net">
+  <style>
+    :root {
+      --primary-color: #4f46e5;
+      --sidebar-width: 260px;
+    }
+    body { background-color: #f3f4f6; font-family: 'Segoe UI', system-ui, sans-serif; margin: 0; }
+    .sidebar { width: var(--sidebar-width); height: 100vh; position: fixed; background-color: #1f2937; display: flex; flex-direction: column; justify-content: space-between; padding: 15px 0; }
+    .sidebar .nav-link { color: #9ca3af; padding: 12px 20px; text-decoration: none; display: block; margin: 4px 15px; border-radius: 6px; }
+    .sidebar .nav-link:hover, .sidebar .nav-link.active { background-color: #374151; color: #fff; }
+    .main-wrapper { margin-left: var(--sidebar-width); padding: 30px; }
+    .card-custom { background: white; padding: 30px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); max-width: 600px; margin: 0 auto; }
+    .form-control, .form-select { width: 100%; padding: 10px; margin-top: 5px; margin-bottom: 15px; border: 1px solid #d1d5db; border-radius: 6px; }
+    .btn-submit { background-color: var(--primary-color); color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; }
+    @media (max-width: 768px) { .sidebar { width: 100%; height: auto; position: relative; } .main-wrapper { margin-left: 0; padding: 15px; } }
+  </style>
+</head>
+<body>
+
+  <nav class="sidebar">
+    <div>
+      <div class="px-4 py-2 text-white fw-bold fs-5"><i class="bi bi-layer-forward"></i> LeavePro</div>
+      <hr style="border-color: #374151; margin: 15px;">
+      <a class="nav-link" href="dashboard.html"><i class="bi bi-grid-1x2-fill me-2"></i> Dashboard</a>
+      <a class="nav-link active" href="apply-leave.html"><i class="bi bi-pencil-square me-2"></i> Apply Leave</a>
+      <a class="nav-link" href="leave-history.html"><i class="bi bi-clock-history me-2"></i> History</a>
+    </div>
+    <div class="px-3"><button class="btn btn-outline-danger w-100 btn-sm" onclick="logout()"><i class="bi bi-power"></i> Logout</button></div>
+  </nav>
+
+  <div class="main-wrapper">
+    <div class="card-custom">
+      <h4 class="fw-bold mb-1"><i class="bi bi-send-fill text-primary"></i> Request Leave Authorization</h4>
+      <p class="text-muted small mb-4">Complete all parameters to queue verification workflows.</p>
+      
+      <form id="form-apply">
+        <label class="fw-medium small">Leave Classification Type *</label>
+        <select id="l-type" class="form-select" required></select>
+
+        <div style="display: flex; gap: 15px;">
+          <div style="flex: 1;">
+            <label class="fw-medium small">Start Date *</label>
+            <input type="date" id="l-start" class="form-control" required>
+          </div>
+          <div style="flex: 1;">
+            <label class="fw-medium small">End Date *</label>
+            <input type="date" id="l-end" class="form-control" required>
+          </div>
+        </div>
+
+        <div style="margin-bottom: 15px; display: flex; align-items: center; gap: 8px;">
+          <input type="checkbox" id="l-halfday" style="width: 16px; height: 16px;">
+          <label for="l-halfday" class="fw-medium small">Half-Day Strategy Variant (0.5 Count)</label>
+        </div>
+
+        <label class="fw-medium small">Justification / Reason *</label>
+        <textarea id="l-reason" class="form-control" rows="3" required placeholder="Provide context..."></textarea>
+
+        <div style="text-align: right;">
+          <button type="reset" class="btn btn-light btn-sm border me-2">Reset</button>
+          <button type="submit" class="btn-submit">File Request</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="database.js"></script>
+  <script>
+    const user = getSessionUser();
+    if(user) {
+      checkAccess("employee");
+      const types = DB.get("leave_types");
+      const selector = document.getElementById("l-type");
+      types.forEach(t => selector.innerHTML += `<option value="${t.id}">${t.name} (${t.code})</option>`);
+
+      document.getElementById("form-apply").addEventListener("submit", function(e){
+        e.preventDefault();
+        const start = new Date(document.getElementById("l-start").value);
+        const end = new Date(document.getElementById("l-end").value);
+        
+        if (end < start) {
+          showToast("Validation Aborted: End date cannot be earlier than start.", "danger");
+          return;
+        }
+
+        let timeDiff = end.getTime() - start.getTime();
+        let calculatedDays = Math.ceil(timeDiff / (1000 * 3600 * 24)) + 1;
+        if(document.getElementById("l-halfday").checked) calculatedDays = 0.5;
+
+        const currentRequests = DB.get("requests");
+        currentRequests.push({
+          id: Date.now(),
+          employee_id: user.id,
+          leave_type_id: parseInt(selector.value),
+          start_date: document.getElementById("l-start").value,
+          end_date: document.getElementById("l-end").value,
+          total_days: calculatedDays,
+          reason: document.getElementById("l-reason").value.trim(),
+          status: "Pending",
+          approved_by: null,
+          created_at: new Date().toISOString().split('T')[0]
+        });
+
+        DB.set("requests", currentRequests);
+        showToast("Request queued successfully!");
+        setTimeout(() => window.location.href = "dashboard.html", 1500);
+      });
+    }
+  </script>
+</body>
+</html>

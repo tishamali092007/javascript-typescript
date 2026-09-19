@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LeavePro - Personnel Registry</title>
+  <link href="https://jsdelivr.net" rel="stylesheet">
+  <link rel="stylesheet" href="https://jsdelivr.net">
+  <style>
+    :root { --sidebar-width: 260px; }
+    body { background-color: #f3f4f6; font-family: 'Segoe UI', system-ui, sans-serif; margin: 0; }
+    .sidebar { width: var(--sidebar-width); height: 100vh; position: fixed; background-color: #1f2937; display: flex; flex-direction: column; justify-content: space-between; padding: 15px 0; }
+    .sidebar .nav-link { color: #9ca3af; padding: 12px 20px; text-decoration: none; display: block; margin: 4px 15px; border-radius: 6px; }
+    .sidebar .nav-link:hover, .sidebar .nav-link.active { background-color: #374151; color: #fff; }
+    .main-wrapper { margin-left: var(--sidebar-width); padding: 30px; }
+    .card-custom { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 25px; }
+    @media (max-width: 768px) { .sidebar { width: 100%; height: auto; position: relative; } .main-wrapper { margin-left: 0; padding: 15px; } }
+  </style>
+</head>
+<body>
+
+  <nav class="sidebar">
+    <div>
+      <div class="px-4 py-2 text-white fw-bold fs-5"><i class="bi bi-layer-forward"></i> LeavePro Manager</div>
+      <hr style="border-color: #374151; margin: 15px;">
+      <a class="nav-link" href="manager-list.html"><i class="bi bi-shield-lock me-2"></i> Leave Pipelines</a>
+      <a class="nav-link active" href="members.html"><i class="bi bi-people-fill me-2"></i> Directory List</a>
+    </div>
+    <div class="px-3"><button class="btn btn-outline-danger w-100 btn-sm" onclick="logout()"><i class="bi bi-power"></i> Logout</button></div>
+  </nav>
+
+  <div class="main-wrapper">
+    <div class="card-custom">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+        <h5 class="fw-bold m-0"><i class="bi bi-person-lines-fill text-primary"></i> Team Personnel Directory</h5>
+      </div>
+      <table class="table small">
+        <thead><tr><th>Name</th><th>Email</th><th>Department</th><th>Status</th></tr></thead>
+        <tbody id="directory-tbody"></tbody>
+      </table>
+    </div>
+
+    <div class="card-custom">
+      <h5 class="fw-bold mb-3"><i class="bi bi-building text-primary"></i> Department Structural Overview</h5>
+      <div class="row g-3" id="dept-cards-row"></div>
+    </div>
+  </div>
+
+  <script src="database.js"></script>
+  <script>
+    if(getSessionUser()) {
+      checkAccess("manager");
+      const depts = DB.get("departments");
+
+      window.renderDirectory = function() {
+        const users = DB.get("users").filter(u => u.role === "employee");
+        const tbody = document.getElementById("directory-tbody");
+        tbody.innerHTML = "";
+        
+        users.forEach(u => {
+          const dName = depts.find(d => d.id === u.department_id)?.name || "Unassigned";
+          tbody.innerHTML += `<tr><td><strong>${u.name}</strong></td><td>${u.email}</td><td>${dName}</td><td><span class="badge bg-success-subtle text-success border px-2 py-1">${u.status}</span></td></tr>`;
+        });
+
+        const cardsRow = document.getElementById("dept-cards-row");
+        cardsRow.innerHTML = "";
+        depts.forEach(d => {
+          const count = DB.get("users").filter(u => u.department_id === d.id).length;
+          cardsRow.innerHTML += `
+            <div class="col-md-6">
+              <div class="p-3 border rounded d-flex justify-content-between align-items-center bg-light">
+                <div><strong>${d.name}</strong></div>
+                <span class="badge bg-primary px-3 py-2">${count} Personnel</span>
+              </div>
+            </div>`;
+        });
+      };
+      renderDirectory();
+    }
+  </script>
+</body>
+</html>

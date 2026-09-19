@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LeavePro - Management Console</title>
+  <link href="https://jsdelivr.net" rel="stylesheet">
+  <link rel="stylesheet" href="https://jsdelivr.net">
+  <style>
+    :root { --sidebar-width: 260px; }
+    body { background-color: #f3f4f6; font-family: 'Segoe UI', system-ui, sans-serif; margin: 0; }
+    .sidebar { width: var(--sidebar-width); height: 100vh; position: fixed; background-color: #1f2937; display: flex; flex-direction: column; justify-content: space-between; padding: 15px 0; }
+    .sidebar .nav-link { color: #9ca3af; padding: 12px 20px; text-decoration: none; display: block; margin: 4px 15px; border-radius: 6px; }
+    .sidebar .nav-link:hover, .sidebar .nav-link.active { background-color: #374151; color: #fff; }
+    .main-wrapper { margin-left: var(--sidebar-width); padding: 30px; }
+    .card-custom { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+    .status-badge { padding: 4px 12px; border-radius: 50px; font-size: 13px; font-weight: 500; }
+    .status-pending { background-color: #fef3c7; color: #92400e; }
+    .status-approved { background-color: #d1fae5; color: #065f46; }
+    .status-rejected { background-color: #fee2e2; color: #991b1b; }
+    .d-none { display: none !important; }
+    @media (max-width: 768px) { .sidebar { width: 100%; height: auto; position: relative; } .main-wrapper { margin-left: 0; padding: 15px; } }
+  </style>
+</head>
+<body>
+
+  <nav class="sidebar">
+    <div>
+      <div class="px-4 py-2 text-white fw-bold fs-5"><i class="bi bi-layer-forward"></i> LeavePro Manager</div>
+      <hr style="border-color: #374151; margin: 15px;">
+      <a class="nav-link active" href="manager-list.html"><i class="bi bi-shield-lock me-2"></i> Leave Pipelines</a>
+      <a class="nav-link" href="members.html"><i class="bi bi-people-fill me-2"></i> Directory List</a>
+    </div>
+    <div class="px-3"><button class="btn btn-outline-danger w-100 btn-sm" onclick="logout()"><i class="bi bi-power"></i> Logout</button></div>
+  </nav>
+
+  <div class="main-wrapper">
+    <div id="panel-list-view" class="card-custom">
+      <h4 class="fw-bold mb-3"><i class="bi bi-clipboard-check text-primary"></i> Team Leave Review Pipeline</h4>
+      
+      <div class="row g-2 mb-4">
+        <div class="col-md-5">
+          <input type="text" id="search-box" class="form-control form-control-sm" placeholder="Search by name..." onkeyup="processManagerPipeline()">
+        </div>
+        <div class="col-md-4">
+          <select id="status-filter" class="form-select form-select-sm" onchange="processManagerPipeline()">
+            <option value="">Filter Status (All)</option>
+            <option value="Pending">Pending Evaluation</option>
+            <option value="Approved">Approved</option>
+            <option value="Rejected">Rejected</option>
+          </select>
+        </div>
+      </div>
+
+      <table class="table small">
+        <thead><tr><th>Applicant</th><th>Type</th><th>Date Range</th><th>Days</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody id="manager-table-body"></tbody>
+      </table>
+    </div>
+
+    <div id="panel-detail-view" class="card-custom d-none mx-auto" style="max-width: 600px;">
+      <button class="btn btn-link p-0 mb-3 text-decoration-none" onclick="switchViewPanel(false)"><i class="bi bi-arrow-left"></i> Back</button>
+      <h5 class="fw-bold mb-3 pb-2 border-bottom">Audit Details</h5>
+      <div class="row g-3 small mb-4">
+        <div class="col-6">Employee: <strong id="det-name"></strong></div>
+        <div class="col-6">Type: <strong id="det-type"></strong></div>
+        <div class="col-6">Dates: <span id="det-dates"></span></div>
+        <div class="col-6">Duration: <span id="det-days"></span></div>
+        <div class="col-12">Reason: <p id="det-reason" class="bg-light p-2 border rounded mt-1"></p></div>
+        <div class="col-6">Status: <span id="det-status" class="status-badge"></span></div>
+      </div>
+      <div id="action-execution-row" class="text-end">
+        <button class="btn btn-danger btn-sm me-2" onclick="executeWorkflowResolution('Rejected')">Reject</button>
+        <button class="btn btn-success btn-sm" onclick="executeWorkflowResolution('Approved')">Approve</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="database.js"></script>
+  <script>
+    const manager = getSessionUser();
+    let currentInspectedRequestId = null;
+
+    if(manager) {
+      checkAccess("manager");
+
+      window.processManagerPipeline = function() {
+        const requests = DB.get("requests");
+        const users = DB.get("users");
+        const types = DB.get("leave_types");
+        const query = document.getElementById("search-box").value.toLowerCase();
+        const statusVal = document.getElementById("status-filter").value;
+        const tbody = document.getElementById("manager-table-body");
+        
+        tbody.innerHTML = "";
+        requests.forEach(r => {
+          const emp = users.find(u => u.id === r.employee_id) || {};
+          const tName = types.find(t => t.id === r.leave_type_id)?.name || "Leave";
+          if ((emp.name?.toLowerCase().includes(query) || tName.toLowerCase().includes(query)) && (!statusVal || r.status === statusVal)) {
+            tbody.innerHTML += `<tr><td><strong>${emp.name}</strong></td><td>${tName}</td><td>${r.start_date} to ${r.end_date}</td><td>${r.total_days}</td><td><span class="status-badge status-${r.status.toLowerCase()}">${r.status}</span></td><td><button class="btn btn-sm btn-outline-secondary py-0" onclick="launchInspectionView(${r.id})">View</button></td></tr>`;
+          }
+        });
+      };
+
+      window.switchViewPanel = function(showDetail) {
+        document.getElementById("panel-list-view").classList.toggle("d-none", showDetail);
+        document.getElementById("panel-detail-view").classList.toggle("d-none", !showDetail);
+      };
+
+      window.launchInspectionView = function(id) {
+        currentInspectedRequestId = id;
+        const target = DB.get("requests").find(r => r.id === id);
+        const emp = DB.get("users").find(u => u.id === target.employee_id) || {};
+        const tName = DB.get("leave_types").find(t => t.id === target.leave_type_id)?.name || "Leave";
+
+        document.getElementById("det-name").textContent = emp.name;
+        document.getElementById("det-type").textContent = tName;
+        document.getElementById("det-dates").textContent = `${target.start_date} to ${target.end_date}`;
+        document.getElementById("det-days").textContent = `${target.total_days} Days`;
+        document.getElementById("det-reason").textContent = target.reason;
+        
+        const badge = document.getElementById("det-status");
+        badge.textContent = target.status;
+        badge.className = `status-badge status-${target.status.toLowerCase()}`;
+        document.getElementById("action-execution-row").classList.toggle("d-none", target.status !== "Pending");
+        switchViewPanel(true);
+      };
+
+      window.executeWorkflowResolution = function(targetState) {
+        const allReqs = DB.get("requests");
+        const idx = allReqs.findIndex(r => r.id === currentInspectedRequestId);
+        if(idx !== -1) {
+          allReqs[idx].status = targetState;
+          allReqs[idx].approved_by = manager.id;
+          DB.set("requests", allReqs);
+          showToast(`Workflow status updated to ${targetState}`);
+          switchViewPanel(false);
+          processManagerPipeline();
+        }
+      };
+      processManagerPipeline();
+    }
+  </script>
+</body>
+</html>

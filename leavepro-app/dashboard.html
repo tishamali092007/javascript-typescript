@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>LeavePro - Employee Dashboard</title>
+  <link href="https://jsdelivr.net" rel="stylesheet">
+  <link rel="stylesheet" href="https://jsdelivr.net">
+  <style>
+    :root {
+      --primary-color: #4f46e5;
+      --sidebar-width: 260px;
+    }
+    body {
+      background-color: #f3f4f6;
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      margin: 0;
+    }
+    .sidebar {
+      width: var(--sidebar-width);
+      height: 100vh;
+      position: fixed;
+      background-color: #1f2937;
+      color: #9ca3af;
+      z-index: 100;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 15px 0;
+    }
+    .sidebar .nav-link {
+      color: #9ca3af;
+      padding: 12px 20px;
+      text-decoration: none;
+      display: block;
+      margin: 4px 15px;
+      border-radius: 6px;
+      font-size: 15px;
+    }
+    .sidebar .nav-link:hover, .sidebar .nav-link.active {
+      background-color: #374151;
+      color: #fff;
+    }
+    .main-wrapper {
+      margin-left: var(--sidebar-width);
+      padding: 30px;
+      min-height: 100vh;
+    }
+    .card-metric {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 20px;
+    }
+    .border-start-primary { border-left: 4px solid #4f46e5; }
+    .border-start-danger { border-left: 4px solid #ef4444; }
+    .border-start-success { border-left: 4px solid #10b981; }
+    .border-start-warning { border-left: 4px solid #f59e0b; }
+    
+    .status-badge {
+      padding: 4px 12px;
+      border-radius: 50px;
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .status-pending { background-color: #fef3c7; color: #92400e; }
+    .status-approved { background-color: #d1fae5; color: #065f46; }
+    .status-rejected { background-color: #fee2e2; color: #991b1b; }
+    
+    .progress-bar-custom {
+      height: 8px;
+      background-color: #e5e7eb;
+      border-radius: 4px;
+      overflow: hidden;
+      margin-top: 5px;
+    }
+    .progress-fill {
+      height: 100%;
+      background-color: var(--primary-color);
+    }
+    .row-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; }
+    .split-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    
+    @media (max-width: 768px) {
+      .sidebar { width: 100%; height: auto; position: relative; }
+      .main-wrapper { margin-left: 0; padding: 15px; }
+      .row-grid, .split-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="sidebar">
+    <div>
+      <div class="px-4 py-2 text-white fw-bold fs-5"><i class="bi bi-layer-forward"></i> LeavePro</div>
+      <hr style="border-color: #374151; margin: 15px;">
+      <a class="nav-link active" href="dashboard.html"><i class="bi bi-grid-1x2-fill me-2"></i> Dashboard</a>
+      <a class="nav-link" href="apply-leave.html"><i class="bi bi-pencil-square me-2"></i> Apply Leave</a>
+      <a class="nav-link" href="leave-history.html"><i class="bi bi-clock-history me-2"></i> History</a>
+    </div>
+    <div class="px-3"><button class="btn btn-outline-danger w-100 btn-sm" onclick="logout()"><i class="bi bi-power"></i> Logout</button></div>
+  </nav>
+
+  <div class="main-wrapper">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+      <div>
+        <h2 class="fw-bold" id="emp-welcome" style="margin: 0;">Welcome</h2>
+        <p class="text-muted" style="margin: 0; font-size: 14px;">Overview of structural leave allocation balances</p>
+      </div>
+      <a href="apply-leave.html" class="btn btn-primary btn-sm px-3" style="background-color: var(--primary-color); border: none;">Apply Leave</a>
+    </div>
+
+    <div class="row-grid">
+      <div class="card-metric border-start-primary"><div>TOTAL ENTITLEMENT</div><h3 class="fw-bold" id="m-total">0</h3></div>
+      <div class="card-metric border-start-danger"><div>USED LEAVES</div><h3 class="fw-bold" id="m-used">0</h3></div>
+      <div class="card-metric border-start-success"><div>REMAINING LEAVE</div><h3 class="fw-bold" id="m-rem">0</h3></div>
+      <div class="card-metric border-start-warning"><div>PENDING APPROVAL</div><h3 class="fw-bold" id="m-pend">0</h3></div>
+    </div>
+
+    <div class="split-grid">
+      <div class="card-metric">
+        <h5 class="fw-bold mb-3"><i class="bi bi-pie-chart-fill text-primary"></i> Leave Balance Matrix</h5>
+        <div id="balance-bars" style="display: flex; flex-direction: column; gap: 15px;"></div>
+        <div style="background-color: #e0f2fe; color: #0369a1; padding: 10px; border-radius: 6px; font-size: 13px; margin-top: 20px;">
+          <i class="bi bi-info-circle-fill"></i> Balance updates automatically after Manager approval.
+        </div>
+      </div>
+      
+      <div class="card-metric">
+        <h5 class="fw-bold mb-3"><i class="bi bi-card-list text-primary"></i> Recent Actions Tracking</h5>
+        <table class="table small">
+          <thead><tr><th>Type</th><th>Duration</th><th>Days</th><th>Status</th></tr></thead>
+          <tbody id="recent-table"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script src="database.js"></script>
+  <script>
+    const user = getSessionUser();
+    if(user) {
+      checkAccess("employee");
+      document.getElementById("emp-welcome").textContent = `Welcome back, ${user.name}`;
+      
+      const stats = getDashboardStats(user.id);
+      document.getElementById("m-total").textContent = stats.total + " Days";
+      document.getElementById("m-used").textContent = stats.used + " Days";
+      document.getElementById("m-rem").textContent = stats.remaining + " Days";
+      document.getElementById("m-pend").textContent = stats.pending;
+
+      const balances = calculateBalances(user.id);
+      const barsContainer = document.getElementById("balance-bars");
+      Object.keys(balances).forEach(id => {
+        const b = balances[id];
+        const pct = (b.used / b.total) * 100;
+        barsContainer.innerHTML += `
+          <div>
+            <div style="display: flex; justify-content: space-between; font-size: 14px; font-weight: 500;">
+              <span>${b.name} (${b.code})</span>
+              <span class="text-muted">${b.used} / ${b.total} Used</span>
+            </div>
+            <div class="progress-bar-custom"><div class="progress-fill" style="width: ${pct}%"></div></div>
+          </div>`;
+      });
+
+      const reqs = DB.get("requests").filter(r => r.employee_id === user.id).slice(-3).reverse();
+      const types = DB.get("leave_types");
+      const tbody = document.getElementById("recent-table");
+      reqs.forEach(r => {
+        const typeName = types.find(t => t.id === r.leave_type_id)?.name || "Leave";
+        tbody.innerHTML += `<tr><td><strong>${typeName}</strong></td><td>${r.start_date} to ${r.end_date}</td><td>${r.total_days}</td><td><span class="status-badge status-${r.status.toLowerCase()}">${r.status}</span></td></tr>`;
+      });
+    }
+  </script>
+</body>
+</html>
